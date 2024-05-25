@@ -7,11 +7,7 @@ class ProductTest extends TestCase
     public function testInsertProductSuccess()
     {
         // Créez une instance de votre script pour le tester
-        // Inclure le fichier à tester
-require_once __DIR__ . '/../src/votre_script.php';
-
-// Maintenant, vous pouvez accéder aux fonctions et aux classes définies dans votre script pour les tester
-// Remplacez 'votre_script.php' par le chemin vers votre fichier
+        require_once 'votre_script.php'; // Remplacez 'votre_script.php' par le chemin vers votre fichier
 
         // Simulez les données du formulaire
         $_SERVER["REQUEST_METHOD"] = "POST";
@@ -36,11 +32,7 @@ require_once __DIR__ . '/../src/votre_script.php';
     public function testInsertProductFailure()
     {
         // Créez une instance de votre script pour le tester
-        // Inclure le fichier à tester
-require_once __DIR__ . '/../src/votre_script.php';
-
-// Maintenant, vous pouvez accéder aux fonctions et aux classes définies dans votre script pour les tester
-// Remplacez 'votre_script.php' par le chemin vers votre fichier
+        require_once 'votre_script.php'; // Remplacez 'votre_script.php' par le chemin vers votre fichier
 
         // Simulez les données du formulaire (par exemple, des données manquantes)
         $_SERVER["REQUEST_METHOD"] = "POST";
