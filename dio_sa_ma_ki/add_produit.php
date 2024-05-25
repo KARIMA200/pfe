@@ -8,7 +8,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stock_produit = $_POST['stock'];
     $categorie_produit = $_POST['categorie'];
 
-    // Connexion à la base de données
+    // la base de donner 
+
     $servername = "localhost";
     $username = "root";
     $password = "";
@@ -16,12 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $conn = new mysqli($servername, $username, $password, $dbname);
 
-    // Vérification de la connexion
+   
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Vérifier si le fichier a été correctement envoyé
+    
     if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         // Récupérer le nom du fichier
         $image_name = $_FILES['image']['name'];
