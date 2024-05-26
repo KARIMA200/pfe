@@ -1,0 +1,13 @@
+# Utiliser l'image de base MySQL
+FROM mysql:5.7
+
+# Définir les variables d'environnement (optionnel)
+ENV MYSQL_ROOT_PASSWORD=\
+    MYSQL_DATABASE=ecommerce \
+    MYSQL_USER=root \
+    MYSQL_PASSWORD=\
+# Copier le fichier mysql.init dans le conteneur
+COPY mysql.init /docker-entrypoint-initdb.d/
+
+# Exposer le port MySQL (port 3306 par défaut)
+EXPOSE 3306

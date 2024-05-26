@@ -1,0 +1,5 @@
+# Utiliser l'image de base Apache
+FROM httpd:2.4
+
+# Exposer le port Apache (port 80 par défaut)
+EXPOSE 80
