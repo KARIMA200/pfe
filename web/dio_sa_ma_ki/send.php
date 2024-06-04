@@ -76,7 +76,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
             echo "Une erreur s'est produite lors du téléchargement de l'image.";
         }
     }
-    ?>
+    
     
 
 // Récupérez les données du message et du destinataire
@@ -188,14 +188,28 @@ if ($row_count > 0) {
 
         // Liaison des paramètres et exécution de la requête pour insérer le message
         $stmt_message->bind_param("isssi", $conversation_id, $expediteur, $destinataire, $message, $lu);
-        if ($stmt_message->execute()) {
-            http_response_code(200);
-            echo "Message envoyé avec succès.";
-        } else {
+        $sql_message = "INSERT INTO conversations_utilisateurs (conversation_id, utilisateur_email) VALUES (?, ?)";
+        $stmt_message = $conn->prepare($sql_message);
+    
+        // Vérification de la préparation de la requête
+        if (!$stmt_message) {
             http_response_code(500);
-            echo "Erreur lors de l'envoi du message: " . $conn->error;
+            exit("Erreur de préparation de la requête: " . $conn->error);
         }
-
+    
+        // Liaison des paramètres et exécution de la requête pour insérer le message
+        $stmt_message->bind_param("is", $conversation_id, $expediteur );
+  $sql_message = "INSERT INTO conversations_utilisateurs (conversation_id, utilisateur_email) VALUES (?, ?)";
+        $stmt_message = $conn->prepare($sql_message);
+    
+        // Vérification de la préparation de la requête
+        if (!$stmt_message) {
+            http_response_code(500);
+            exit("Erreur de préparation de la requête: " . $conn->error);
+        }
+    
+        // Liaison des paramètres et exécution de la requête pour insérer le message
+        $stmt_message->bind_param("is", $conversation_id, $expediteur );
         // Fermez le statement pour l'insertion du message
         $stmt_message->close();
     } else {

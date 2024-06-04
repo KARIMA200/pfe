@@ -1,18 +1,21 @@
 {
-    "name": "monprojet/monprojet",
-    "description": "Description de mon projet",
+    "name": "monorganisation/emailproject",
+    "description": "Application de gestion des emails pour mon projet de fin d'études.",
     "type": "project",
     "require": {
-        "php": "^7.4|^8.0", 
-        "phpunit/phpunit": "^9.0"    },
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "license": "MIT",
     "autoload": {
         "psr-4": {
-            "App\\": "dio_sa_ma_ki/"
+            "Monorganisation\\Emailproject\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
+    "authors": [
+        {
+            "name": "karima chougri",
+            "email": "karima.chougri@gmail.com"
         }
-    }
+    ],
+    "minimum-stability": "stable"
 }

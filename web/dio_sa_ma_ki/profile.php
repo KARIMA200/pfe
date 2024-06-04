@@ -48,6 +48,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Profil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .profile-container {
             display: flex;
@@ -81,7 +82,6 @@ $conn->close();
             transition: background-color 0.3s;
             margin-bottom: 10px;
         }
-        
         .change-image-button:hover,
         .modify-info-button:hover {
             background-color: #3ba88e;
@@ -99,7 +99,6 @@ $conn->close();
             left: 0;
             width: 300px;
             padding: 20px;
-
             border: 1px solid #ddd;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -120,57 +119,63 @@ $conn->close();
             text-decoration: underline;
         }
         input[type="text"] {
-    border: none;
-    /* Autres styles */
-}
-
-       
+            border: none;
+        }
+        .upload-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .upload-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .file-input {
+            display: none;
+        }
     </style>
 </head>
 <body>
 <div class="profile-container">
-       
+    <form action="modifier_info.php" method="post">
+        <h2><input type="text" name="nom_prenom" value="<?php echo  $row['nom'] . ' ' . $row['prenom'];?>"></h2>
+        <?php
+        $image_path = "image/" . $row['user_image'];
+        if (file_exists($image_path) && is_readable($image_path)) {
+            echo '<img src="' . $image_path . '" alt="' . $row['nom'] . '" class="profile-image" id="profile-image">';
+        } else {
+            echo '<img src="chemin_vers_image_par_defaut/default_image.jpg" alt="Image par défaut" class="profile-image" id="profile-image">';
+        }
+        ?>
+        <div id="mot-de-passe-form"></div>
+        <div class="profile-info">
+            <p><span class="label">Pays:</span> <input type="text" name="pays" value="<?php echo $row['pays']; ?>"></p>
+            <p><span class="label">Ville:</span> <input type="text" name="ville" value="<?php echo $row['ville']; ?>"></p>
+            <p><span class="label">Téléphone:</span> <input type="text" name="telephone" value="<?php echo $row['telephone']; ?>"></p>
+        </div>
+        <input id="modifier-input" type="submit" class="modify-info-button" value="Modifier info">
+    </form>
 
-<form action="modifier_info.php" method="post">
+    <form action="upload_image.php" method="post" enctype="multipart/form-data">
+        <div class="upload-container">
+            <label for="file-input">
+                <i class="fa-solid fa-file"></i> 
+            </label>
+            <input type="file" id="file-input" class="file-input" name="image">
+            <button type="submit" class="modify-info-button">Modifier image</button>
+        </div>
+    </form>
 
-    <h2><input type="text" name="nom_prenom" value="<?php echo  $row['nom'] . ' ' . $row['prenom'];?>"></h2>
-    <?php
-    $image_path = "image/" . $row['user_image'];
-    if (file_exists($image_path) && is_readable($image_path)) {
-        echo '<img src="' . $image_path . '" alt="' . $row['nom'] . '" class="profile-image" id="profile-image">';
-    } else {
-        echo '<img src="chemin_vers_image_par_defaut/default_image.jpg" alt="Image par défaut" class="profile-image" id="profile-image">';
-    }
-    ?>  <div id="mot-de-passe-form">
-    <!-- Le formulaire de changement de mot de passe sera chargé ici -->
-</div>
-
-
-
-    <div class="profile-info">
-        <p><span class="label">Pays:</span> <input type="text" name="pays" value="<?php echo $row['pays']; ?>"></p>
-        <p><span class="label">Ville:</span> <input type="text" name="ville" value="<?php echo $row['ville']; ?>"></p>
-        <p><span class="label">Téléphone:</span> <input type="text" name="telephone" value="<?php echo $row['telephone']; ?>"></p>
-    </div>
-    <input id="modifier-input" type="submit" class="modify-info-button" value="Modifier info">
-
-</form>
-
-
-        <form action="upload_image.php" method="post" enctype="multipart/form-data">
-      <input type="file" id="file" class="profile-form" name="image" value="changer image">
-      <button type="submit" class="modify-info-button">modifier image</button></form>
     <form class="profile-form" action="supprimer_image.php" method="POST">
-    
-    <button type="submit" class="modify-info-button">supprimer image</button>
-</form>
- <form action="motdepasse.php" method="post">
-<button type="submit" id="l-mot" class="modify-info-button">Changer mot de passe</button>
-</form>
+        <button type="submit" class="modify-info-button">Supprimer image</button>
+    </form>
 
-<!-- Bouton pour charger mot.php -->
-
-
-
+    <form action="motdepasse.php" method="post">
+        <button type="submit" id="l-mot" class="modify-info-button">Changer mot de passe</button>
+    </form>
+</div>
 </body>
 </html>
+

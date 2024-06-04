@@ -40,17 +40,9 @@ if ($prix != 'tous') {
             $sql .= " AND prix BETWEEN 151 AND 200";
             break;
         case '201-250':
-            $sql .= " AND prix BETWEEN 201 AND 250";
+            $sql .= " AND prix > 200";
             break;
-        case '251-300':
-            $sql .= " AND prix BETWEEN 251 AND 300";
-            break;
-        case '301-350':
-            $sql .= " AND prix BETWEEN 301 AND 350";
-            break;
-        case 'plus':
-            $sql .= " AND prix > 350";
-            break;
+       
     }
 }
 
@@ -93,30 +85,21 @@ $result = $conn->query($sql);
                     <option value="chaussures">Chaussures</option>
                     <option value="accessoires">Accessoires</option>
                     <option value="electroniques">Électroniques</option>
-                    <option value="maison">Maison</option>
-                    <option value="jouets">Jouets</option>
-                    <option value="beaute">Beauté</option>
-                    <option value="sports">Sports</option>
-                    <option value="livres">Livres</option>
-                    <option value="musique">Musique</option>
-                    <option value="films">Films</option>
-                    <option value="jeux">Jeux</option>
-                    <option value="alimentation">Alimentation</option>
-                    <option value="boissons">Boissons</option>
+                    <option value="maison">beaute et sante</option>
+               
                     
        
             </select>
             <label for="prix">Filtrer par prix :</label>
             <select id="prix" name="prix">
-            option value="tous">tous</option>
+           
+            <option value="tout">tout</option>
                     <option value="0-50">0 - 50</option>
                     <option value="51-100">51 - 100</option>
                     <option value="101-150">101 - 150</option>
                     <option value="151-200">151 - 200</option>
-                    <option value="201-250">201 - 250</option>
-                    <option value="251-300">251 - 300</option>
-                    <option value="301-350">301 - 350</option>
-                    <option value="plus">Plus de 400</option>
+                    <option value="201-250">plus de 200</option>
+                    
                 </select>
                 <!-- Ajoutez d'autres options de prix selon vos besoins -->
             </select>

@@ -6,7 +6,11 @@ if (!isset($_SESSION["email"])) {
     http_response_code(401);
     exit("Utilisateur non authentifié.");
 }
+ $t= $_SESSION['audio_path'];
 
+
+
+$expediteur = $_SESSION["email"];
 $expediteur = $_SESSION["email"];
 
 // Connexion à la base de données
@@ -42,22 +46,34 @@ if (isset($_FILES['audio'])) {
         $audio_file = $audio_directory . $date_prefix . '.' . $audio_extension;
         if (move_uploaded_file($_FILES['audio']['tmp_name'], $audio_file)) {
             $audio_path = $audio_file;
+            $_SESSION['audio_path'] = $audio_path; // Stocker le chemin dans la variable de session
         }
     }
 }
 
 // Vérifier si une image a été téléchargée
+// Vérifier si une image a été téléchargée
 if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
     $image_directory = "images/";
     $image_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-    $image_file = $image_directory . $date_prefix . '.' . $image_extension;
-    if (move_uploaded_file($_FILES['image']['tmp_name'], $image_file)) {
-        $image_path = $image_file;
+    $image_file = $date_prefix . '_' . $expediteur . '.' . $image_extension; // Nom du fichier avec date et email
+    $image_path = $image_directory . $image_file; // Chemin complet du fichier
+
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
+        // Image déplacée avec succès, pas besoin de stocker dans la session
+    } else {
+        echo "Erreur lors du déplacement de l'image.";
     }
 }
 
+
+
+
+
+
+
 // Déterminer le contenu à insérer dans la base de données
-$message = $message_text ? $message_text : ($audio_path ? $audio_path : ($image_path ? $image_path : null));
+$message = $message_text ? $message_text : ($image_path ? $image_path : ($t ? $t : null));
 
 if ($message === null) {
     die("Aucun contenu à insérer dans la base de données.");
@@ -95,15 +111,16 @@ if ($row_count > 0) {
 
     $stmt_message->bind_param("isssi", $conversation_id, $expediteur, $destinataire, $message, $lu);
     if ($stmt_message->execute()) {
-        $sql_update_conversation = "UPDATE conversations SET dernier_message = ?, date_dernier_message = NOW() WHERE id = ?";
+        $sql_update_conversation = "UPDATE conversations SET dernier_message = ?, date_dernier_message = NOW(), utilisateur1_delete = ?, utilisateur2_delete = ? WHERE id = ?";
         $stmt_update_conversation = $conn->prepare($sql_update_conversation);
-
+        
         if (!$stmt_update_conversation) {
             http_response_code(500);
             exit("Erreur de préparation de la requête: " . $conn->error);
         }
-
-        $stmt_update_conversation->bind_param("si", $message, $conversation_id);
+        
+        $d = 0;
+        $stmt_update_conversation->bind_param("siii", $message, $d, $d, $conversation_id);
         if ($stmt_update_conversation->execute()) {
             http_response_code(200);
             echo "Message envoyé avec succès.";
@@ -147,13 +164,13 @@ if ($row_count > 0) {
             echo "Message envoyé avec succès.";
         } else {
             http_response_code(500);
-            echo "Erreur lors de l'envoi du message: " . $conn->error;
+            echo "Erreur lors de l'insertion de la conversation: " . $conn->error;
         }
 
         $stmt_message->close();
     } else {
         http_response_code(500);
-        echo "Erreur lors de l'insertion de la conversation: " . $conn->error;
+        echo "Erreur lors de l'envoi du message: " . $conn->error;
     }
 
     $stmt_conversation->close();

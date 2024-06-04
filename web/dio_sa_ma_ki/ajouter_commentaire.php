@@ -48,6 +48,21 @@ if(isset($_POST['produit_id']) && isset($_POST['commentaire'])) {
     $prenom = $user_info['prenom'];
     $image = $user_info['user_image'];
 
+    // Récupérer l'e-mail du vendeur
+    $stmt = $conn->prepare("SELECT vendeur_id FROM produits_vendeurs WHERE produit_id = ?");
+    $stmt->bind_param("i", $produit_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $vendeur_id = $row['vendeur_id'];
+
+    $stmt = $conn->prepare("SELECT email FROM vendeurs WHERE id = ?");
+    $stmt->bind_param("i", $vendeur_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $vendeur_email = $row['email'];
+
     // Utiliser des requêtes préparées pour éviter les injections SQL
     $stmt = $conn->prepare("INSERT INTO commentaires (produit_id, email, commentaire, date_commentaire, nom, prenom, image) VALUES (?, ?, ?, NOW(), ?, ?, ?)");
     $stmt->bind_param("isssss", $produit_id, $email, $commentaire, $nom, $prenom, $image);
@@ -55,6 +70,12 @@ if(isset($_POST['produit_id']) && isset($_POST['commentaire'])) {
     // Exécuter la requête
     if ($stmt->execute()) {
         echo "Commentaire ajouté avec succès.";
+
+        // Insérer une notification pour le vendeur
+        $notification = "$prenom $nom a ajouté un commentaire sur votre produit.";
+        $stmt = $conn->prepare("INSERT INTO notifications (user_1, user_2, notification) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $email, $vendeur_email, $notification);
+        $stmt->execute();
     } else {
         echo "Erreur lors de l'ajout du commentaire: " . $conn->error;
     }

@@ -1,5 +1,5 @@
 <?php
-// Placez ce code au début du fichier PHP pour initialiser la connexion à la base de données
+session_start();
 
 // Connexion à la base de données
 $servername = "localhost";
@@ -36,7 +36,7 @@ if ($result->num_rows > 0) {
 $stmt->close();
 ?>
 
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,103 +44,113 @@ $stmt->close();
     <title>Envoyer un message</title>
     <link rel="stylesheet" href="css/all.min.css">
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            background: #f4f4f4;
         }
-        body {
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+
         .chat-container {
-            width: 400px;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            max-width: 500px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
+
         .chat-header {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px;
+            background: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
         }
-        .user-avatar img {
+
+        .chat-header .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            overflow: hidden;
             margin-right: 10px;
         }
-        .chat-header span {
-            font-weight: bold;
+
+        .chat-header .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
+
+        .chat-header span {
+            font-size: 18px;
+        }
+
         .chat-messages {
-            flex: 1;
-            padding: 10px;
+            padding: 20px;
+            max-height: 300px;
             overflow-y: auto;
         }
+
         .chat-input {
-            border-top: 1px solid #ddd;
+            padding: 10px;
             display: flex;
             align-items: center;
-            padding: 10px;
+            background: #f9f9f9;
         }
+
         .chat-input textarea {
-            width: 100%;
-            height: 50px;
-            border: none;
-            resize: none;
+            flex: 1;
             padding: 10px;
-            border-radius: 4px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            resize: none;
             margin-right: 10px;
         }
-        .attachment-icons img {
-            width: 24px;
-            height: 24px;
-            margin-right: 5px;
-            cursor: pointer;
-        }
-        #sendMessageBtn {
-            background-color: #4caf50;
+
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
         }
-        #sendMessageBtn:hover {
+
+        .chat-input button:hover {
             background-color: #45a049;
         }
-        #recordButton {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-    }
-    .recording {
-        background-color: #f00; /* Couleur de fond pendant l'enregistrement */
-    }
-    #stopRecordingBtn {
-        display: none;
-    }
-    #deleteRecordingBtn {
-        display: none;
-    }
-    #sendRecording{background-color: #4caf50;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+
+        .chat-input i {
+            font-size: 20px;
+            margin-right: 10px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-bottom: 10px;}
+        }
+
+        .record-item {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .record-item img {
+            width: 100px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .delete-icon {
+            color: #FF0044;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .recording {
+            background-color: #FF0044;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -185,13 +195,22 @@ $stmt->close();
                 <div id="recordingsList"></div>        
     <i id="startRecording" class="fas fa-microphone"></i>
     <i id="image" class="fa-solid fa-file"></i>
-    <input type="file" name="audio" id="audioInput" accept="audio/*" style="display
-: none;">
+    <input type="file" name="audio" id="audioInput" accept="audio/*" style="display: none;">
     <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;">
     <button id="sendRecording">Send </button>
             </form>
         </div>
     </div>
+    <script>
+        // Votre JavaScript ici
+    </script>
+</body>
+</html>
+
+<?php
+$conn->close();}
+?>
+
     <script>
         let mediaRecorder;
         let recordedChunks = [];
@@ -267,13 +286,24 @@ $stmt->close();
             let formData = new FormData();
             formData.append('audio', blob, 'recording.wav');
 
+            // Set session variable for the audio path
+            let currentDate = new Date();
+            let formattedDate = currentDate.getFullYear() + 
+                                ("0" + (currentDate.getMonth() + 1)).slice(-2) + 
+                                ("0" + currentDate.getDate()).slice(-2) + 
+                                ("0" + currentDate.getHours()).slice(-2) + 
+                                ("0" + currentDate.getMinutes()).slice(-2);
+            let audioPath = formattedDate + '.' + '<?php echo $_SESSION["email"]; ?>';
+            formData.append('audio_path', audioPath);
+
             let xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         let filePath = xhr.responseText;
                         console.log("File path:", filePath);
-                        // Stocker le chemin du fichier dans une variable ou effectuer d'autres actions nécessaires
+                        // Stocker le chemin du fichier dans une variable de session
+                        <?php $_SESSION['audio_path'] = '<script>document.write(audioPath)</script>'; ?>
                     } else {
                         console.error('Error:', xhr.status);
                     }
@@ -349,6 +379,4 @@ $stmt->close();
 </body>
 </html>
 
-<?php
-$conn->close();}
-?>
+

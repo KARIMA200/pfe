@@ -1,3 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscription</title>
+    <style>
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .success-message .icon {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
 <?php
 // Connexion à la base de données
 $servername = "localhost";
@@ -59,10 +84,18 @@ if ($email_exists || $email_exists_vendeur) {
 
             if ($conn->query($sql) === TRUE) {
                 // Insérer également dans la table utilisateurs
-                $insert_utilisateur_sql = "INSERT INTO utilisateurs ( email, type)
-                                           VALUES ( '$email', '$type_utilisateur_sql')";
+                $insert_utilisateur_sql = "INSERT INTO utilisateurs (email, type)
+                                           VALUES ('$email', '$type_utilisateur_sql')";
                 if ($conn->query($insert_utilisateur_sql) === TRUE) {
-                    echo "Inscription réussie!";
+                    echo '<div class="success-message" id="success-message">
+                            <span class="icon">&#10004;</span> Inscription réussie!
+                          </div>';
+                    echo '<script>
+                            document.getElementById("success-message").style.display = "block";
+                            setTimeout(function() {
+                                window.location.href = "index.html.html";
+                            }, 4000);
+                          </script>';
                 } else {
                     echo "Erreur lors de l'insertion dans la table utilisateurs: " . $conn->error;
                 }
@@ -79,3 +112,5 @@ if ($email_exists || $email_exists_vendeur) {
 
 $conn->close();
 ?>
+</body>
+</html>

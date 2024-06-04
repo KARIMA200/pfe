@@ -56,7 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['email'] = $email;
 
             // Redirigez l'utilisateur vers la page d'accueil appropriée
-            header('Location: uu.php');
+            header('Location: uuv.php');
             exit(); // Assure que le script s'arrête après la redirection
         }
     }

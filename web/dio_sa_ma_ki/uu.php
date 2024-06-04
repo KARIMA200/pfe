@@ -30,20 +30,82 @@ $result_client = $stmt_client->get_result();
 
 
 
-// Récupérer tous les produits de la table produits
-$sql1 = "SELECT * FROM produits";
-$result1 = $conn->query($sql1);
+$sql = "SELECT p.*, 
+               (SELECT COUNT(*) FROM favoris WHERE favoris.product_id = p.id) AS favorie_count,
+               (SELECT COUNT(*) FROM commentaires WHERE commentaires.produit_id = p.id) AS commentaire_count
+        FROM produits p";
 
-// Requête SQL pour compter le nombre de messages non lus pour ce vendeur
-$sql2 = "SELECT COUNT(*) AS count FROM messages WHERE lu = 0 AND destinataire = '$email'";
-$result2 = $conn->query($sql2);
-
-// Nombre total de messages non lus pour ce vendeur
-if ($result2->num_rows > 0) {
-    $row = $result2->fetch_assoc();
-    $total_unread_messages = $row['count'];
+// Vérifier si une catégorie est spécifiée
+if (isset($_GET['category'])) {
+    $category = $_GET['category'];
+    $sql .= " WHERE categorie = '$category'";
 }
+
+// Vérifier si des paramètres de prix sont spécifiés
+if (isset($_GET['min_price']) && isset($_GET['max_price'])) {
+    $min_price = $_GET['min_price'];
+    $max_price = $_GET['max_price'];
+    
+    // Vérifier si une condition WHERE est déjà présente dans la requête SQL
+    if (strpos($sql, 'WHERE') !== false) {
+        $sql .= " AND prix BETWEEN $min_price AND $max_price";
+    } else {
+        $sql .= " WHERE prix BETWEEN $min_price AND $max_price";
+    }
+} elseif (isset($_GET['min_price'])) {
+    $min_price = $_GET['min_price'];
+    // Vérifier si une condition WHERE est déjà présente dans la requête SQL
+    if (strpos($sql, 'WHERE') !== false) {
+        $sql .= " AND prix >= $min_price";
+    } else {
+        $sql .= " WHERE prix >= $min_price";
+    }
+}
+
+// Vérifier si un paramètre de recherche est spécifié
+if (isset($_POST['search'])) {
+    $search_term = $_POST['search'];
+    // Vérifier si une condition WHERE est déjà présente dans la requête SQL
+    if (strpos($sql, 'WHERE') !== false) {
+        $sql .= " AND nom LIKE '%$search_term%'";
+    } else {
+        $sql .= " WHERE nom LIKE '%$search_term%'";
+    }
+}
+
+
+
+// Exécuter la requête SQL
+$result1 = $conn->query($sql);
+$unreadSql = "SELECT COUNT(*) as unread_count FROM messages WHERE destinataire = ? AND lu = 0";
+$unreadStmt = $conn->prepare($unreadSql);
+$unreadStmt->bind_param("s", $email);
+$unreadStmt->execute();
+$result0 = $unreadStmt->get_result();
+$row = $result0->fetch_assoc();
+
+$unreadCount = $row['unread_count']; // Stocke le résultat dans une variable
+
+echo json_encode(['unread_count' => $unreadCount]);
+
+$unreadStmt->close();
+$unreadSql5 = "SELECT COUNT(*) as nb_notif FROM notifications WHERE user_2 = ? AND lu = 0";
+$unreadStmt5 = $conn->prepare($unreadSql5);
+$unreadStmt5->bind_param("s", $email);
+$unreadStmt5->execute();
+$result5 = $unreadStmt5->get_result();
+$row = $result5->fetch_assoc();
+
+$nb_notif = $row['nb_notif']; // Stocke le résultat dans une variable
+echo $nb_notif;
+echo json_encode(['nb_notif' => $nb_notif]);
+
+$unreadStmt5->close();
 ?>
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -177,7 +239,9 @@ if ($result2->num_rows > 0) {
             flex-wrap: wrap;
             gap: 20px;
             padding: 20px;
-            margin-top: 70px; /* To avoid overlap with the fixed header */
+            margin-top: 70px;
+            margin-left:20px;
+            margin-right:10px /* To avoid overlap with the fixed header */
         }
         .products-container {
             display: flex;
@@ -289,6 +353,31 @@ if ($result2->num_rows > 0) {
     border-radius: 50%;
     cursor: pointer;
 }
+.icon{  cursor: pointer;}
+
+#comment{
+    margin-right:-80px;
+}.notification {
+            position: relative;
+            display: inline-block;
+        }
+
+        .notification .count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            line-height: 1;
+            text-align: center;
+            min-width: 6px;
+            height: 6px;
+        }
+
+
  </style>
 </head>
 <body>
@@ -349,33 +438,46 @@ if ($result2->num_rows > 0) {
                     </li>
                 </ul>
             </div>
-        </div>
-        <div class="search-container">
-            <input type="text" placeholder="Search...">
-            <button>Search</button>
-        </div>
-        <div class="right-container">
-            <img class="logo3" src="messenger1.png" alt="Logo 3">
+        </div>  
+        <form action="" method="POST" class="search-container">
+        <input type="text" placeholder="Search..." name="search">
+        <button type="submit">Search</button>
+    </form>
+        <div class="right-container " id="comment" onclick="loadChatPage()">
+        <i class="fa-solid fa-comment"></i>
+        <?php if ($unreadCount > 0): ?>
+            <span class="count"><?php echo $unreadCount; ?></span>
+        <?php endif; ?>
     </div>
-    <div class="center-icon clickable" onclick="chargerPageVoirPanier()">
-        <i class="fa-solid fa-cart-shopping fa-3x"></i><br>
-        Voir Panier
+    <div class="notif-popup" id="notif-popup"></div>
+    <div class="chat-popup" id="chat-popup"></div>
+    <div class="right_notification" id="notification" onclick="toggleNotification()">
+        <i class="fa-solid fa-bell"></i>
+        <?php if ($nb_notif > 0): ?>
+            <span class="count"><?php echo $nb_notif; ?></span>
+        <?php endif; ?>
+    </div>
+
+    <div  id="panier" onclick="chargerPageVoirPanier()">
+        <i class="fa-solid fa-cart-shopping "></i><br>
+        
     </div>
     </div>
     <div id="profile-content" style="display: none;"></div>
-    <div id="zoneVoirPanier" style="display: none;"></div>
-    <div class="products-container">
+  
+    
+    <span class="products-container">
     <div id="mot-content"></div>
     <?php if (isset($success_message)): ?>
         <!-- Div carrée pour afficher le message de succès -->
-        <div class="success-message">
+        <div class="succe ss-message">
         <input type="submit" class="close-button" onclick="closeMessage()" value="X">
             <?php echo $success_message; ?>
         </div>
     <?php endif; ?>
         <?php
         // Vérifier s'il y a des produits à afficher
-        if ($result1->num_rows > 0) {
+     
             // Parcourir chaque produit
             while($row = $result1->fetch_assoc()) {
                 ?>
@@ -396,7 +498,9 @@ if ($result2->num_rows > 0) {
                         // Si le fichier n'existe pas, afficher une image par défaut
                         echo '<img src="chemin_vers_image_par_defaut/default_image.jpg" alt="Image par défaut">';
                     }
-                    ?>
+                
+?>
+                    
                     <h3><?php echo $row['nom']; ?></h3>
                     <p><?php echo $row['description']; ?></p>
                     <p class="price">Prix: <?php echo $row['prix']; ?>€</p>
@@ -404,25 +508,27 @@ if ($result2->num_rows > 0) {
                         <form action="ajouter_panier.php" method="post">
                             <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
                             <button type="submit" class="comment-button">
-                                <img src="panier1.png" alt="Ajouter au panier">
+                            <i class="fa-solid fa-cart-shopping"></i>
                             </button>
                         </form>
                         <form action="envoyer_message.php" method="POST">
                             <input type="hidden" name="produit_id" value="<?php echo $row['id']; ?>">
                             <button type="submit" class="comment-button">
-                                <img src="messenger1.png" alt="Envoyer un message">
+                            <i class="fa-brands fa-facebook-messenger"></i>
                             </button>
                         </form>
                         <form action="commenter.php" method="POST" class="comment-form">
                             <input type="hidden" name="produit_id" value="<?php echo $row['id']; ?>">
                             <button type="submit" class="comment-button">
-                                <img src="commente1.png" alt="Commenter">
+                            <i class="fa-regular fa-comment"></i>
+                            <span id="favoris-count-<?php echo $row['id']; ?>"><?php echo $commentaire_count = isset($row['commentaire_count']) ? $row['commentaire_count'] : 0;?></span>
                             </button>
                         </form>
                         <form action="ajouter_favorie.php" method="post">
                             <input type="hidden" name="product_id" value="<?php echo $row['id']; ?>">
                             <button type="submit" class="comment-button">
                             <i class="fa-regular fa-heart"></i>
+                            <span id="favoris-count-<?php echo $row['id']; ?>"><?php echo  $favoris_count = isset($row['favorie_count']) ? $row['favorie_count'] : 0;?></span>
                             </button>
                         </form>
                         <div class="comment-page" id="comment-page"></div>
@@ -431,18 +537,34 @@ if ($result2->num_rows > 0) {
 
 
     <!-- Votre formulaire de commentaire ici -->
-</div>
+                </span>
 
                 </div>
                 <?php
+
             }
-        } else {
-            echo "Aucun produit trouvé.";
-        }
+      
         ?>
     </div>
 
     <script>
+ function toggleNotification() {
+            var popup = document.getElementById('notif-popup');
+            if (popup.style.display === 'block') {
+                popup.style.display = 'none';
+                popup.innerHTML = ''; // Clear content
+            } else {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', 'notification.php', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        popup.innerHTML = xhr.responseText;
+                        popup.style.display = 'block';
+                    }
+                };
+                xhr.send();
+            }
+        }
         document.getElementById('voir-profil').addEventListener('click', function(event) {
             // Empêcher le comportement par défaut du lien
             event.preventDefault();
@@ -497,21 +619,7 @@ if ($result2->num_rows > 0) {
         xhr.open('GET', 'commenter.php?produit_id=' + productId, true);
         xhr.send();
     }
-    function chargerPageVoirPanier() {
-            fetch('voir_panier.php')
-                .then(response => response.text())
-                .then(data => {
-                    const zoneVoirPanier = document.getElementById('zoneVoirPanier');
-                    zoneVoirPanier.innerHTML = data;
-                    zoneVoirPanier.style.display = 'block';
 
-                    // Exécuter les scripts inclus dans le contenu chargé
-                    const scripts = zoneVoirPanier.getElementsByTagName('script');
-                    for (let script of scripts) {
-                        eval(script.innerText);
-                    }
-                });
-        }
  
         function closeMessage() {
             // Sélectionne la div du message de succès
@@ -519,12 +627,63 @@ if ($result2->num_rows > 0) {
             // Masque la div en la rendant invisible
             successDiv.style.display = 'none';
         }
-    </script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatIcon = document.querySelector('.right-container');
+            const chatPopup = document.getElementById('chat-popup');
 
-    <!-- Zone où la page voir_panier.php sera chargée -->
-   
+            chatIcon.addEventListener('click', function() {
+                if (chatPopup.style.display === 'none' || chatPopup.style.display === '') {
+                    fetch('listechat1.php')
+                        .then(response => response.text())
+                        .then(html => {
+                            chatPopup.innerHTML = html;
+                            chatPopup.style.display = 'block';
+                        })
+                        .catch(error => console.error('Error loading chat:', error));
+                } else {
+                    chatPopup.style.display = 'none';
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatIcon = document.getElementById('chat-icon');
+            const chatPopup = document.getElementById('chat-popup');
+            const addIcon = document.getElementById('add-icon');
 
+});
+function redirectToAddProduct() {
+        window.location.href = 'add_produit.html';
+    }
 
+    function loadChatPage() {
+        fetch('listechat1.php')
+            .then(response => response.text())
+            .then(data => {
+                const chatPopup = document.getElementById('chat-popup');
+                chatPopup.innerHTML = data;
+                chatPopup.style.display = 'block';
+            });
+    }
+
+    function chargerPageVoirPanier() {
+        fetch('voir_panier.php')
+            .then(response => response.text())
+            .then(data => {
+                const zoneVoirPanier = document.getElementById('zoneVoirPanier');
+                zoneVoirPanier.innerHTML = data;
+                zoneVoirPanier.style.display = 'block';
+
+                // Exécuter les scripts inclus dans le contenu chargé
+                const scripts = zoneVoirPanier.getElementsByTagName('script');
+                for (let script of scripts) {
+                    eval(script.innerText);
+                }
+            });
+    }
+    function chargerPageVoirPanier() {
+                        window.location.href = 'voir_panier.php';
+                    }
+</script>
     
 </body>
 </html>
