@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pfe-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pfe
+  template:
+    metadata:
+      labels:
+        app: pfe
+    spec:
+      containers:
+      - name: pfe-container
+        image: karimachougri/pfe:latest
+        ports:
+        - containerPort: 80

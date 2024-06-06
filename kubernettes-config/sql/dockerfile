@@ -1,0 +1,10 @@
+# Utiliser une image de base appropriée pour MySQL
+FROM mysql:latest
+
+# Copier le fichier SQL contenant la structure de la base de données dans un répertoire temporaire du conteneur
+COPY ecommerce.sql /docker-entrypoint-initdb.d/
+
+# Exposer le port MySQL (port par défaut 3306)
+EXPOSE 3306
+
+# Vous pouvez ajouter d'autres instructions ici, telles que la définition de variables d'environnement pour la configuration de MySQL

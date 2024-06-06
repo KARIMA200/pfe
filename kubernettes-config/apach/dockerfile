@@ -1,0 +1,16 @@
+# Utiliser une image de base appropriée pour PHP avec Apache
+FROM php:apache
+
+# Copier les fichiers de code PHP et HTML de votre application dans le répertoire de travail du serveur Apache
+COPY dio_sa_ma_ki/ /var/www/html/
+
+# Installer les dépendances PHP nécessaires
+# Vous pouvez utiliser des commandes RUN pour installer des extensions PHP si nécessaire
+
+# Exposer le port 80 (port par défaut pour Apache)
+EXPOSE 80
+
+# CMD ["apache2ctl", "-D", "FOREGROUND"] # Démarrez le serveur Apache (décommentez cette ligne si nécessaire)
+
+
+

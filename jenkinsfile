@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/KARIMA200/pfe.git'
+            }
+        }
+        stage('Build Apache Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker build -t "karimachougri/pfe:latest" ./kubernettes-config/apache'
+                    } else {
+                        bat 'docker build -t "karimachougri/pfe:latest" ./kubernettes-config/apache'
+                    }
+                }
+            }
+        }
+        stage('Push Apache Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker push karimachougri/pfe:latest'
+                    } else {
+                        bat 'docker push karimachougri/pfe:latest'
+                    }
+                }
+            }
+        }
+        stage('Build SQL Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker build -t "karimachougri/sql_imagee:stable" ./kubernettes-config/sql'
+                    } else {
+                        bat 'docker build -t "karimachougri/sql_imagee:stable" ./kubernettes-config/sql'
+                    }
+                }
+            }
+        }
+        stage('Push SQL Image') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker push karimachougri/sql_imagee:stable'
+                    } else {
+                        bat 'docker push karimachougri/sql_imagee:stable'
+                    }
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'kubectl apply -f ./kubernettes-config/prometheus.yaml'
+                    } else {
+                        bat 'kubectl apply -f ./kubernettes-config/prometheus.yaml'
+                    }
+                }
+            }
+        }
+    }
+}
