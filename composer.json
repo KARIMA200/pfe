@@ -1,5 +1,27 @@
 {
+<<<<<<< HEAD
     "require": {
         "prometheus/client_php": "^2.0"
     }
+=======
+    "name": "monorganisation/emailproject",
+    "description": "Application de gestion des emails pour mon projet de fin d'études.",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Monorganisation\\Emailproject\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "karima chougri",
+            "email": "karima.chougri@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable"
+>>>>>>> 8592d08068d47e8ce3191c3520a3e1682ad4d6a1
 }
