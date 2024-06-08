@@ -2,12 +2,12 @@
 // Vérifier si la requête GET contient les données nécessaires
 if (isset($_GET['comment_id'])) {
     // Récupérer les données de la requête GET
+    
     $commentId = $_GET['comment_id'];
-
     // Récupérer l'email de l'utilisateur depuis la session
     session_start();
     $email = $_SESSION['email'];
-
+    $produit_id = $_GET['produit_id'];
     // Connexion à la base de données
     $servername = "localhost";
     $username = "root";
@@ -76,7 +76,7 @@ if (isset($_GET['comment_id'])) {
                 }
             }
 
-            echo "Le nombre de clics a été mis à jour avec succès.";
+            header("Location: commenter.php?produit_id=".$produit_id);
         } else {
             echo "Erreur lors de la mise à jour du nombre de clics: " . $conn->error;
         }

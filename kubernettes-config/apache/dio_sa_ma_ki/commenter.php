@@ -12,16 +12,17 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
-// Vérifier si un identifiant de produit est présent dans la requête POST
-if (isset($_POST['produit_id'])) {
-    // Récupérer l'identifiant du produit depuis la requête POST
+if(isset($_POST['produit_id'])) {
     $produit_id = $_POST['produit_id'];
+} elseif(isset($_GET['produit_id'])) {
+    $produit_id = $_GET['produit_id'];
+} 
+
 
     // Requête SQL pour récupérer tous les commentaires associés à ce produit
     $sql = "SELECT * FROM commentaires WHERE produit_id = $produit_id";
     $result = $conn->query($sql);
-} elseif (isset($_GET['id_notification'])) {
+ if (isset($_GET['id_notification'])) {
     // Récupérer l'identifiant de la notification depuis la requête GET
     $id_notification = $_GET['id_notification'];
 
@@ -39,9 +40,8 @@ if (isset($_POST['produit_id'])) {
     } else {
         echo "Aucun commentaire trouvé pour cette notification.";
     }
-} else {
-    echo "Erreur: Aucun identifiant de produit ou de notification fourni.";
-}
+} 
+
 
 ?>
 
@@ -163,10 +163,36 @@ if (isset($_POST['produit_id'])) {
 .actions span.clickCount {
     margin-left: 3px; /* Ajoute une petite marge entre l'icône et le nombre */
 }
+    .thumbnail {
+        width: 4cm;
+        height: 5cm;
+        object-fit: cover; /* Assurer que l'image couvre complètement le conteneur */
+        cursor: pointer; /* Ajouter un curseur pointer pour indiquer que l'image est cliquable */
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8); /* Fond semi-transparent */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999; /* Assurer que la fenêtre modale est au-dessus de tout le contenu */
+    }
+
+    .full-image {
+        max-width: 90%; /* Limiter la largeur de l'image pour qu'elle ne dépasse pas l'écran */
+        max-height: 90%; /* Limiter la hauteur de l'image pour qu'elle ne dépasse pas l'écran */
+    }
+
+
     </style>
 </head>
 <body>
-    <h1></h1>
+<div id="jaimeContent" style="width: 4cm;"></div>
 <div class="container">
     <!-- Ici seront affichés les commentaires -->
     <?php
@@ -179,12 +205,22 @@ if (isset($_POST['produit_id'])) {
 
             // Afficher le nom et prénom de l'utilisateur dans le même conteneur
             echo "<div class='user-name'>{$row['prenom']} {$row['nom']}</div>";
-            echo "<div class='content'>{$row['commentaire']}</div>";
-            // Afficher les icônes pour les actions (inspirées de Facebook)
+            if (strpos($row['commentaire'], 'image/') === 0) {
+                // Si oui, afficher l'image
+                $image_path = substr($row['commentaire'], 6); // Supprimer "image/" du chemin
+                echo "<div class='image-container'>";
+                echo "<img class='thumbnail' src='$image_path' alt='Image' onclick='displayFullImage(\"$image_path\")'>";
+                echo "</div>";
+            } else {
+                // Si non, afficher le contenu du commentaire
+                echo "<div class='content'>{$row['commentaire']}</div>";
+            }
+            // Afficher les icônes pour les actions (inspirées de Facebook)    echo '<a href="jaime_com.php?id=' . $row['id'] . '" class="loadJaime">J\'aime</a>';
             echo '<div class="actions">';
-            echo '<a href="jaime_com.php?id=' . $row['id'] . '">' . '<span class="clickCount">' . $row['nombre_clics'] . '</span>' . '</a>';
+            echo '<a href="jaime_com.php?id=' . $row['id'] . '" class="loadJaime">' . '<span class="clickCount">' . $row['nombre_clics'] . '</span>' . '</a>';
             echo '<form action="update_clicks.php" method="GET" class="heart-form">';
             echo '  <input type="hidden" name="comment_id" value="' . $row['id'] . '">';
+            echo'<input type="hidden" name="produit_id" value="' . $produit_id . '">';
             echo '  <button type="submit" class="heart-button">';
             echo '      <i class="fas fa-heart"></i>';
             echo '  </button>';
@@ -214,6 +250,7 @@ if (isset($_POST['produit_id'])) {
             echo '<form class="reply-form" action="repondre_commentaire.php" method="POST">';
             echo '<textarea name="response" placeholder="Répondre au commentaire"></textarea>';
             echo '<input type="hidden" name="comment_id" value="' . $row['id'] . '">';
+            echo '<input type="hidden" name="produit_id" value="' . $produit_id . '">';
             echo '<button type="submit" class="submit-button">Envoyer</button>';
             echo '</form>';
 
@@ -221,6 +258,7 @@ if (isset($_POST['produit_id'])) {
             if ($row['email'] == $utilisateur_email) {
                 echo '<form action="supprimer_commentaire.php" method="POST" class="delete-form">';
                 echo '<input type="hidden" name="comment_id" value="' . $row['id'] . '">';
+                echo '<input type="hidden" name="produit_id" value="' . $produit_id . '">';
                 echo '<button type="submit" class="delete-button">';
                 echo '<i class="fa-solid fa-trash"></i>';
                 echo '</button>';
@@ -235,13 +273,13 @@ if (isset($_POST['produit_id'])) {
     ?>
     <!-- Formulaire pour ajouter un nouveau commentaire -->
     <form action="ajouter_commentaire.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="produit_id" value="<?php echo $produit_id; ?>">
-        <textarea name="commentaire" placeholder="Écrire un commentaire"
-        <textarea name="commentaire" placeholder="Écrire un commentaire" style="width: calc(100% - 40px); margin-right: 10px;"></textarea>
-        <label for="file-upload" class="image-icon"><i class="fa fa-camera"></i></label>
-        <input id="file-upload" type="file" name="image" accept="image/*" style="display: none;">
-        <button type="submit" class="submit-button">Commenter</button>
-    </form>
+    <input type="hidden" name="produit_id" value="<?php echo $produit_id; ?>">
+    <textarea name="commentaire" placeholder="Écrire un commentaire" style="width: calc(100% - 40px); margin-right: 10px;"></textarea>
+    <label for="file-upload" class="image-icon"><i class="fa fa-camera"></i></label>
+    <input id="file-upload" type="file" name="image" accept="image/*" style="display: none;">
+    <button type="submit" class="submit-button">Commenter</button>
+</form>
+
 </div>
 <!-- Script JavaScript pour afficher/masquer les réponses et le formulaire de réponse -->
 <script>
@@ -256,6 +294,49 @@ function toggleResponses(commentId) {
         replyForm.style.display = 'none';
     }
 }
+
+    function displayFullImage(imagePath) {
+        // Créer une fenêtre modale pour afficher l'image en grand
+        let modal = document.createElement('div');
+        modal.classList.add('modal');
+        modal.innerHTML = `<img class='full-image' src='${imagePath}' alt='Image'>`;
+
+        // Ajouter la fenêtre modale au document
+        document.body.appendChild(modal);
+
+        // Ajouter un gestionnaire d'événements pour fermer la fenêtre modale lorsque l'utilisateur clique en dehors de l'image
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+// Fonction pour charger jaime_com.php via AJAX
+function loadJaimePage(url, container) {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                // Mettre le contenu de la réponse dans le div
+                document.getElementById(container).innerHTML = xhr.responseText;
+            } else {
+                console.error('Erreur de chargement de la page ' + url + ': ' + xhr.status);
+            }
+        }
+    };
+    xhr.open('GET', url, true);
+    xhr.send();
+}
+
+// Écouter les clics sur les liens avec la classe loadJaime
+document.querySelectorAll('.loadJaime').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault(); // Empêcher le comportement par défaut du lien
+        loadJaimePage(this.getAttribute('href'), 'jaimeContent');
+    });
+});
+
 </script>
 </body>
 </html>

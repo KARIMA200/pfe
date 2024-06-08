@@ -41,6 +41,26 @@ if(isset($_POST['produit_id']) && isset($_POST['commentaire'])) {
     // Récupérer les données POST
     $produit_id = $_POST['produit_id'];
     $commentaire = $_POST['commentaire'];
+    $image_path = "";}
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        // Répertoire de destination pour sauvegarder l'image
+        $target_dir = "image/";
+
+        // Créer un nom de fichier unique en utilisant l'email et la date actuelle
+        $currentDate = date("YmdHis");
+        $image_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $image_name = $email . "_" . $currentDate . "." . $image_extension;
+        $target_file = $target_dir . $image_name;
+
+        // Déplacez le fichier téléchargé dans le répertoire de destination
+        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+            // Ajouter le chemin de l'image au commentaire
+            $commentaire .= "image/" .$target_file;
+        } else {
+            echo "Désolé, une erreur s'est produite lors du téléchargement de votre fichier.";
+            exit;
+        }
+    }
 
     // Récupérer les informations de l'utilisateur
     $user_info = getUserInfo($email, $conn);
@@ -67,15 +87,17 @@ if(isset($_POST['produit_id']) && isset($_POST['commentaire'])) {
     $stmt = $conn->prepare("INSERT INTO commentaires (produit_id, email, commentaire, date_commentaire, nom, prenom, image) VALUES (?, ?, ?, NOW(), ?, ?, ?)");
     $stmt->bind_param("isssss", $produit_id, $email, $commentaire, $nom, $prenom, $image);
 
-    // Exécuter la requête
-    if ($stmt->execute()) {
-        echo "Commentaire ajouté avec succès.";
+
+    
 
         // Insérer une notification pour le vendeur
         $notification = "$prenom $nom a ajouté un commentaire sur votre produit.";
         $stmt = $conn->prepare("INSERT INTO notifications (user_1, user_2, notification) VALUES (?, ?, ?)");
         $stmt->bind_param("sss", $email, $vendeur_email, $notification);
         $stmt->execute();
+        if ($stmt->execute()) {  if ($stmt->execute()) {
+            header("Location: commenter.php?&produit_id=$produit_id");
+            exit();
     } else {
         echo "Erreur lors de l'ajout du commentaire: " . $conn->error;
     }

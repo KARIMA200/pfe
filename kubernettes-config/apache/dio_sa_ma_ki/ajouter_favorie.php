@@ -40,7 +40,8 @@ if (isset($_POST['product_id'])) {
 
         // Exécuter la requête d'insertion
         if ($stmt_insert_favorite->execute()) {
-            echo "Produit ajouté aux favoris avec succès.";
+          
+            
 
             // Rechercher le vendeur du produit
             $stmt_vendeur = $conn->prepare("SELECT vendeur_id FROM produits_vendeurs WHERE produit_id = ?");
@@ -64,11 +65,13 @@ if (isset($_POST['product_id'])) {
             $stmt_info_utilisateur->execute();
             $result_info_utilisateur = $stmt_info_utilisateur->get_result();
             $row_info_utilisateur = $result_info_utilisateur->fetch_assoc();
+            if ($row_info_utilisateur){
             $nom_utilisateur = $row_info_utilisateur['nom'];
             $prenom_utilisateur = $row_info_utilisateur['prenom'];
 
             // Vérifier si l'utilisateur est un client
-            if (!$row_info_utilisateur) {
+            }else{ 
+                
                 // Utilisateur non trouvé dans la table clients, donc il doit être un vendeur
                 $stmt_info_utilisateur = $conn->prepare("SELECT nom, prenom FROM vendeurs WHERE email = ?");
                 $stmt_info_utilisateur->bind_param("s", $email_utilisateur);
@@ -92,6 +95,19 @@ if (isset($_POST['product_id'])) {
             $result_count_favorites = $stmt_count_favorites->get_result();
             $row_count_favorites = $result_count_favorites->fetch_assoc();
             $_SESSION['favoris_count'][$product_id] = $row_count_favorites['favoris_count'];
+       
+            $page = '';
+            if ($row_info_utilisateur) {
+                // L'utilisateur est un client
+                $page = 'uu.php';
+            } else {
+                // L'utilisateur est un vendeur
+                $page = 'uuv.php';
+            }
+            header("Location: $page");
+            exit();
+       
+       
         } else {
             echo "Erreur lors de l'ajout du produit aux favoris: " . $conn->error;
         }
@@ -104,7 +120,17 @@ if (isset($_POST['product_id'])) {
         $stmt_insert_notification->close();
         $stmt_count_favorites->close();
     } else {
-        echo "Le produit est déjà en favori pour cet utilisateur.";
+      
+        $page = '';
+            if ($row_info_utilisateur) {
+                // L'utilisateur est un client
+                $page = 'uu.php';
+            } else {
+                // L'utilisateur est un vendeur
+                $page = 'uuv.php';
+            }
+            header("Location: $page");
+            exit();
     }
 
     // Fermer la connexion

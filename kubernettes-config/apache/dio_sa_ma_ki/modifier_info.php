@@ -3,7 +3,10 @@ session_start();
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['email'])) {
-    die("Vous n'êtes pas connecté.");
+    // Vous n'êtes pas connecté.
+    $error_message = urlencode("Vous n'êtes pas connecté.");
+    header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
+    exit();
 }
 
 // Récupérer l'email de la session
@@ -19,7 +22,10 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Vérification de la connexion
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Connection failed: [error message]
+    $error_message = urlencode("Échec de la connexion à la base de données");
+    header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
+    exit();
 }
 
 // Rechercher l'utilisateur dans la table vendeurs
@@ -39,11 +45,16 @@ $result_client = $stmt_client->get_result();
 if ($result_vendeur->num_rows > 0) {
     $row = $result_vendeur->fetch_assoc();
     $table = 'vendeurs'; // Définir la table à mettre à jour
+    $success_page = 'uuv.php'; // Définir la page de succès
 } elseif ($result_client->num_rows > 0) {
     $row = $result_client->fetch_assoc();
     $table = 'clients'; // Définir la table à mettre à jour
+    $success_page = 'uu.php'; // Définir la page de succès
 } else {
-    die("Utilisateur non trouvé");
+    // Utilisateur non trouvé
+    $error_message = urlencode("Utilisateur non trouvé.");
+    header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
+    exit();
 }
 
 // Mettre à jour les informations dans la table appropriée
@@ -64,12 +75,21 @@ if (!empty($table)) {
 
     // Exécuter la requête d'update
     if ($stmt_update->execute()) {
-        echo "Informations mises à jour avec succès.";
+        $error_message = urlencode("Informations mises à jour avec succès. " . $stmt_update->error);
+        // Informations mises à jour avec succès.
+        header('Location:succes.php?page=' . $success_page . '&message=' . $error_message);
+        exit();
     } else {
-        echo "Erreur lors de la mise à jour des informations: " . $conn->error;
+        // Erreur lors de la mise à jour des informations: [error message]
+        $error_message = urlencode("Erreur lors de la mise à jour des informations: " . $stmt_update->error);
+        header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
+        exit();
     }
 } else {
-    echo "Type d'utilisateur non pris en charge.";
+    // Type d'utilisateur non pris en charge.
+    $error_message = urlencode("Type d'utilisateur non pris en charge.");
+    header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
+    exit();
 }
 
 // Fermer la connexion à la base de données

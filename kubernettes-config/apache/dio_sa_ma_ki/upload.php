@@ -26,6 +26,29 @@ if ($conn->connect_error) {
     http_response_code(500);
     exit("Erreur de connexion à la base de données: " . $conn->connect_error);
 }
+// Recherche de l'email dans les tables "vendeurs" et "clients"
+$sql_check_email_vendeur = "SELECT * FROM vendeurs WHERE email = ?";
+$stmt_check_email_vendeur = $conn->prepare($sql_check_email_vendeur);
+$stmt_check_email_vendeur->bind_param("s", $expediteur);
+$stmt_check_email_vendeur->execute();
+$result_vendeur = $stmt_check_email_vendeur->get_result();
+
+$sql_check_email_client = "SELECT * FROM clients WHERE email = ?";
+$stmt_check_email_client = $conn->prepare($sql_check_email_client);
+$stmt_check_email_client->bind_param("s", $expediteur);
+$stmt_check_email_client->execute();
+$result_client = $stmt_check_email_client->get_result();
+
+$page = ""; // Initialisation de la page de destination
+
+if ($result_vendeur->num_rows > 0) {
+    $page = "uuv.php"; // Page de destination si l'email est trouvé dans la table "vendeurs"
+} elseif ($result_client->num_rows > 0) {
+    $page = "uu.php"; // Page de destination si l'email est trouvé dans la table "clients"
+} else {
+    http_response_code(404);
+    exit("Utilisateur introuvable.");
+}
 
 // Initialiser les variables pour les fichiers
 $message_text = null;
@@ -123,7 +146,11 @@ if ($row_count > 0) {
         $stmt_update_conversation->bind_param("siii", $message, $d, $d, $conversation_id);
         if ($stmt_update_conversation->execute()) {
             http_response_code(200);
-            echo "Message envoyé avec succès.";
+           
+            
+            $error_message = urlencode("message envoyer avec succes.");
+            header('Location: succes.php?page=' . $page . '&message=' . $error_message);
+            exit();
         } else {
             http_response_code(500);
             echo "Erreur lors de la mise à jour de la conversation: " . $conn->error;

@@ -60,12 +60,9 @@ if(isset($_GET['email'])) {
     exit;
 }
 ?>
-<<<<<<< HEAD:kubernettes-config/apach/dio_sa_ma_ki/pro_chat.php
 <!DOCTYPE html>
-=======
 
-<!<!DOCTYPE html>
->>>>>>> 8592d08068d47e8ce3191c3520a3e1682ad4d6a1:web/dio_sa_ma_ki/envoyer_message.php
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -203,20 +200,18 @@ if(isset($_GET['email'])) {
                 <input type="hidden" name="email_v" value="<?php echo $email; ?>">
                 <textarea id="messageInput" name="message" placeholder="Type your message..."></textarea>
                 <div id="recordingsList"></div>        
-<<<<<<< HEAD:kubernettes-config/apach/dio_sa_ma_ki/pro_chat.php
-                <i id="startRecording" class="fas fa-microphone"></i>
-                <i id="image" class="fa-solid fa-file"></i>
-                <input type="file" name="audio" id="audioInput" accept="audio/*" style="display: none;">
-                <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;">
-                <button id="sendRecording">Send </button>
-=======
+
+                
+             
+
+                
     <i id="startRecording" class="fas fa-microphone"></i>
     <i id="image" class="fa-solid fa-file"></i>
     <input type="file" name="audio" id="audioInput" accept="audio/*" style="display: none;">
     <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;">
     <button id="sendRecording">Send </button>
->>>>>>> 8592d08068d47e8ce3191c3520a3e1682ad4d6a1:web/dio_sa_ma_ki/envoyer_message.php
-            </form>
+
+    
         </div>
     </div>
     <script>
@@ -225,13 +220,10 @@ if(isset($_GET['email'])) {
 </body>
 </html>
 
-<<<<<<< HEAD:kubernettes-config/apach/dio_sa_ma_ki/pro_chat.php
 
-=======
-<?php
-$conn->close();}
-?>
->>>>>>> 8592d08068d47e8ce3191c3520a3e1682ad4d6a1:web/dio_sa_ma_ki/envoyer_message.php
+
+
+
 
     <script>
         let mediaRecorder;

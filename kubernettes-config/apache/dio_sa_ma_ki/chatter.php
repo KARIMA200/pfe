@@ -9,7 +9,7 @@ $image = $_GET['user_image'];
 
 // Utilisez ces valeurs comme vous le souhaitez dans votre code
 
-
+$success_page = 'chatter.php';
 // Vérification si l'utilisateur est connecté
 if (!isset($_SESSION["email"])) {
     header("Location: login.php"); // Redirection vers la page de connexion si non connecté
@@ -117,7 +117,7 @@ if (isset($_GET["email"])) {
             }
 
             .message .messageText {
-                background-color: #FF0044;
+                background-color:  #ff7e5f;
                 color: #fff;
                 padding: 10px;
                 border-radius: 10px;

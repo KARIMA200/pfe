@@ -32,7 +32,8 @@ $dbname = "ecommerce";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
-    die("Échec de la connexion à la base de données: " . $conn->connect_error);
+    header("Location: erreur.php?page=inscription&message=" . urlencode("Échec de la connexion à la base de données: " . $conn->connect_error));
+    exit();
 }
 
 // Récupération des données du formulaire
@@ -49,65 +50,78 @@ $type_utilisateur = $_POST['type_utilisateur'];
 // Vérification si l'e-mail existe déjà dans la base de données
 $email_exists_query = "SELECT COUNT(*) as count FROM clients WHERE email = '$email'";
 $result = $conn->query($email_exists_query);
+if ($result === FALSE) {
+    header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur lors de la vérification de l'email client: " . $conn->error));
+    exit();
+}
 $row = $result->fetch_assoc();
 $email_exists = $row['count'] > 0;
 
 $email_exists_query_vendeur = "SELECT COUNT(*) as count FROM vendeurs WHERE email = '$email'";
 $result_vendeur = $conn->query($email_exists_query_vendeur);
+if ($result_vendeur === FALSE) {
+    header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur lors de la vérification de l'email vendeur: " . $conn->error));
+    exit();
+}
 $row_vendeur = $result_vendeur->fetch_assoc();
 $email_exists_vendeur = $row_vendeur['count'] > 0;
 
 if ($email_exists || $email_exists_vendeur) {
-    echo "Erreur: Cet email existe déjà dans la base de données.";
-} else {
-    // Vérifier si le fichier a été correctement envoyé
-    if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // Récupérer le nom du fichier
-        $image_name = $_FILES['image']['name'];
-        // Définir le chemin de destination pour enregistrer l'image
-        $upload_directory = "image/"; // Choisissez le répertoire où vous souhaitez enregistrer les images
-        // Déplacer le fichier téléchargé vers le répertoire de destination
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_directory . $image_name)) {
-            // Hacher le mot de passe
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur: Cet email existe déjà dans la base de données."));
+    exit();
+}
 
-            // Insertion des données dans la base de données en fonction du type d'utilisateur
-            if ($type_utilisateur == 'client') {
-                $sql = "INSERT INTO clients (nom, prenom, pays, ville, adresse, telephone, email, password, user_image)
-                        VALUES ('$nom', '$prenom', '$pays', '$ville', '$adresse', '$telephone', '$email', '$password_hash', '$image_name')";
-                $type_utilisateur_sql = 'client';       
-            } elseif ($type_utilisateur == 'vendeur') {
-                $sql = "INSERT INTO vendeurs (nom, prenom, pays, ville, adresse, telephone, email, password, user_image)
-                        VALUES ('$nom', '$prenom', '$pays', '$ville', '$adresse', '$telephone', '$email', '$password_hash', '$image_name')";
-                $type_utilisateur_sql = 'vendeur';      
-            }
+// Vérifier si le fichier a été correctement envoyé
+if(isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    // Récupérer le nom du fichier
+    $image_name = $_FILES['image']['name'];
+    // Définir le chemin de destination pour enregistrer l'image
+    $upload_directory = "image/"; // Choisissez le répertoire où vous souhaitez enregistrer les images
+    // Déplacer le fichier téléchargé vers le répertoire de destination
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $upload_directory . $image_name)) {
+        // Hacher le mot de passe
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-            if ($conn->query($sql) === TRUE) {
-                // Insérer également dans la table utilisateurs
-                $insert_utilisateur_sql = "INSERT INTO utilisateurs (email, type)
-                                           VALUES ('$email', '$type_utilisateur_sql')";
-                if ($conn->query($insert_utilisateur_sql) === TRUE) {
-                    echo '<div class="success-message" id="success-message">
-                            <span class="icon">&#10004;</span> Inscription réussie!
-                          </div>';
-                    echo '<script>
-                            document.getElementById("success-message").style.display = "block";
-                            setTimeout(function() {
-                                window.location.href = "index.html.html";
-                            }, 4000);
-                          </script>';
-                } else {
-                    echo "Erreur lors de l'insertion dans la table utilisateurs: " . $conn->error;
-                }
+        // Insertion des données dans la base de données en fonction du type d'utilisateur
+        if ($type_utilisateur == 'client') {
+            $sql = "INSERT INTO clients (nom, prenom, pays, ville, adresse, telephone, email, password, user_image)
+                    VALUES ('$nom', '$prenom', '$pays', '$ville', '$adresse', '$telephone', '$email', '$password_hash', '$image_name')";
+            $type_utilisateur_sql = 'client';       
+        } elseif ($type_utilisateur == 'vendeur') {
+            $sql = "INSERT INTO vendeurs (nom, prenom, pays, ville, adresse, telephone, email, password, user_image)
+                    VALUES ('$nom', '$prenom', '$pays', '$ville', '$adresse', '$telephone', '$email', '$password_hash', '$image_name')";
+            $type_utilisateur_sql = 'vendeur';      
+        }
+
+        if ($conn->query($sql) === TRUE) {
+            // Insérer également dans la table utilisateurs
+            $insert_utilisateur_sql = "INSERT INTO utilisateurs (email, type)
+                                       VALUES ('$email', '$type_utilisateur_sql')";
+            if ($conn->query($insert_utilisateur_sql) === TRUE) {
+                echo '<div class="success-message" id="success-message">
+                        <span class="icon">&#10004;</span> Inscription réussie!
+                      </div>';
+                echo '<script>
+                        document.getElementById("success-message").style.display = "block";
+                        setTimeout(function() {
+                            window.location.href = "index.html.html";
+                        }, 2000); // 2000 millisecondes = 2 secondes
+                      </script>';
             } else {
-                echo "Erreur: " . $sql . "<br>" . $conn->error;
+                header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur lors de l\'insertion dans la table utilisateurs: " . $conn->error));
+                exit();
             }
         } else {
-            echo "Erreur lors de l'envoi du fichier.";
+            header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur: " . $sql . "<br>" . $conn->error));
+            exit();
         }
     } else {
-        echo "Aucun fichier image envoyé ou erreur lors du téléchargement.";
+        header("Location: erreur.php?page=inscription&message=" . urlencode("Erreur lors de l'envoi du fichier."));
+        exit();
     }
+} else {
+    header("Location: erreur.php?page=inscription&message=" . urlencode("Aucun fichier image envoyé ou erreur lors du téléchargement."));
+    exit();
 }
 
 $conn->close();

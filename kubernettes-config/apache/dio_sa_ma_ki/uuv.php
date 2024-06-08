@@ -442,7 +442,7 @@ $unreadStmt1->close();
 
 .product-info .price {
     font-size: 18px;
-    color: #ff4500; /* Couleur de prix */
+    color: #ff7e5f; /* Couleur de prix */
     margin-top: 10px; /* Espacement en haut pour l'espace entre la description et le prix */
 }.yellow {
     color: gold;
@@ -627,14 +627,14 @@ $unreadStmt1->close();
     #notification{ margin-left:1cm;}
     .vendor-link {
     text-decoration: none;
-    color: #ff7e5ff; /* Bleu */
+    color: rgb(75, 205, 162); /* Bleu */
     font-weight: bold;
     transition: color 0.3s, border-bottom 0.3s;
     border-bottom: 2px solid transparent;
 }
 
 .vendor-link:hover {
-    color: ##ff7e5f; /* Couleur légèrement plus foncée pour le survol */
+    color: #ff7e5f; /* Couleur légèrement plus foncée pour le survol */
     border-bottom: 2px solid #0056b3;
 }
 
@@ -642,7 +642,8 @@ h3 {
     font-family: 'Arial', sans-serif;
     font-size: 18px;
     margin: 10px 0;
-}
+}.notif-popup
+{    margin-top=-10cm;}
  </style>
 </head>
 <body>
@@ -728,26 +729,29 @@ if ($vendeur) {
     <?php endif; ?>
 </div>
 
-<!-- Popup de notification -->
-<div class="notif-popup" id="notif-popup"></div>
+
+
 
 <!-- Popup de chat -->
 <div class="chat-popup" id="chat-popup"></div>
 
 <!-- Icône de notification -->
-<div class="icon right_notification" id="notification" onclick="toggleNotification()">
-    <i class="fa-solid fa-bell"></i>
-    <?php if ($nb_notif > 0): ?>
-        <span class="count"><?php echo $nb_notif; ?></span>
-    <?php endif; ?>
-</div>
+<a href="notification.php">
+    <div class="icon right_notification" id="notification">
+        <i class="fa-solid fa-bell"></i>
+        <?php if ($nb_notif > 0): ?>
+            <span class="count"><?php echo $nb_notif; ?></span>
+        <?php endif; ?>
+    </div>
+</a>
     <a href="voir_produits.php" id="karima" class="creative-link move-left">Voir les produits</a>
 
 
    
     </div>
     <div id="profile-content" style="display: none;"></div>
-    <div id="zoneVoirPanier" style="display: none;"></div>
+ 
+    
     <span class="products-container" >
 
     <div id="mot-content"></div>
@@ -791,7 +795,7 @@ if ($vendeur) {
 
                     <span class="product-info">
     <h3><?php echo $row['nom']; ?></h3>
-    <p><?php echo $row['description']; ?></p>
+    <p ><?php echo $row['description']; ?></p>
     <p class="price">Prix: <?php echo $row['prix']; ?>€</p>
 
 
@@ -879,23 +883,8 @@ echo '<ul class="rating">' . $etoiles_html . '</ul>';
     <script>
 
 
-         function toggleNotification() {
-            var popup = document.getElementById('notif-popup');
-            if (popup.style.display === 'block') {
-                popup.style.display = 'none';
-                popup.innerHTML = ''; // Clear content
-            } else {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'notification.php', true);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState == 4 && xhr.status == 200) {
-                        popup.innerHTML = xhr.responseText;
-                        popup.style.display = 'block';
-                    }
-                };
-                xhr.send();
-            }
-        }
+   
+
        
         document.getElementById('voir-profil').addEventListener('click', function(event) {
             // Empêcher le comportement par défaut du lien
@@ -917,6 +906,7 @@ echo '<ul class="rating">' . $etoiles_html . '</ul>';
             var listeCachee = document.getElementById('liste-cachée');
             listeCachee.style.display = 'none';
         });
+
 
         document.getElementById("logo-clickable").addEventListener("click", function() {
             var listeCachee = document.getElementById("liste-cachée");
@@ -1010,6 +1000,8 @@ function redirectToAddProduct() {
                 chatPopup.style.display = 'block';
             });
     }
+  
+    
 
     function chargerPageVoirPanier() {
         fetch('voir_panier.php')
@@ -1043,6 +1035,10 @@ document.addEventListener('DOMContentLoaded', function() {
         heartIcon.classList.toggle('filled-heart');
     });
 });
+
+
+
+
 
 
 

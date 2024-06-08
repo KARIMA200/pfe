@@ -25,7 +25,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "UPDATE produits SET nom='$nom', description='$description', prix='$prix' WHERE id='$product_id'";
 
     if ($conn->query($sql) === TRUE) {
-        echo "Produit mis à jour avec succès.";
+     
+        $message = "Produit mis à jour avec succès.";
+        header("Location: succes.php?page=voir_produits.php&message=" . urlencode($message));
+        exit();
     } else {
         echo "Erreur lors de la mise à jour du produit: " . $conn->error;
     }

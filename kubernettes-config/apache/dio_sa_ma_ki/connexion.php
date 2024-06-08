@@ -9,7 +9,9 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Vérification de la connexion
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Connection failed: [error message]
+    header('Location: erreur.php?page=connexion.php');
+    exit();
 }
 
 // Traitement des données de formulaire
@@ -61,8 +63,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Si les informations de connexion ne correspondent à aucun enregistrement dans les tables clients et vendeurs
-    echo "Adresse e-mail ou mot de passe incorrect.";
+    // Adresse e-mail ou mot de passe incorrect.
+    header('Location: erreur.php?page=connexion.php&message=Adresse e-mail ou mot de passe incorrect');
+    exit();
 }
 
 $conn->close();

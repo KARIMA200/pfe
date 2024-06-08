@@ -48,8 +48,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $table = '';
         if ($type_utilisateur == 'vendeur') {
             $table = 'vendeurs';
+            $success_page = 'uuv.php';
         } elseif ($type_utilisateur == 'client') {
             $table = 'clients';
+            $success_page = 'uu.php';
         }
 
         // Vérifier si le mot de passe actuel est correct
@@ -65,16 +67,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // Connectez l'utilisateur
             
         } else {
-            $_SESSION['error_message'] = "Ancien mot de passe incorrect.";
-            header('Location: motdepasse.php'); // Rediriger vers la page du formulaire
+         
+               $error_message = urlencode("Ancien mot de passe incorrect.");
+            header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
             exit();
            
         }
 
         // Vérifier si les nouveaux mots de passe correspondent
         if ($nouveau !== $confirmer) {
-            $_SESSION['error_message'] = "les nouveaux msg ne corresponds pas.";
-            header('Location: motdepasse.php'); // Rediriger vers la page du formulaire
+         
+           
+            $error_message = urlencode("les nouveaux msg ne corresponds pas.");
+            header('Location: erreur.php?page=' . $success_page . '&message=' . $error_message);
             exit();
            
         }
@@ -88,10 +93,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt_update = $conn->prepare($sql_update);
         $stmt_update->bind_param("ss", $nouveau_hash, $email);
         $stmt_update->execute();
-
-        $_SESSION['succes_message'] = "mot de passe  changer avec succes.";
-        header('Location: uu.php'); // Rediriger vers la page du formulaire
+        $error_message = urlencode("mot de passe  changer avec succes.");
+        header('Location: succes.php?page=' . $success_page . '&message=' . $error_message);
         exit();
+
+   
+        
     }
 }
 

@@ -66,7 +66,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     // Vérifier si l'insertion dans la table produits_vendeurs a réussi
                     if ($stmt_produit_vendeur->affected_rows > 0) {
-                        echo "Nouveau produit ajouté avec succès.";
+                        $message = "Nouveau produit ajouté avec succès.";
+                        header("Location: succes.php?page=add_produit.html&message=" . urlencode($message));
+                        exit();
                     } else {
                         echo "Erreur lors de l'ajout du produit dans la table produits_vendeurs: " . $conn->error;
                     }

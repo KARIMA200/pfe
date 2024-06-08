@@ -39,7 +39,6 @@ $conn->query($update_sql);
 // Fermer la connexion à la base de données
 $conn->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -50,26 +49,19 @@ $conn->close();
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
             display: flex;
-            justify-content: center;
-            align-items: center;
-    width: 5cm;
-            margin-left:4cm;
-            
-
+            justify-content: center; /* Centrer horizontalement */
+            align-items: center; /* Centrer verticalement */
+            height: 100vh;
         }
 
         .notification-container {
-            width: 5cm;
-            background-color: #4bcdA2;
-            margin-top: 11cm;
-            margin-left: 5cm;
+            width: 12cm; /* Largeur de 12 cm */
             overflow-y: auto;
             max-height: calc(100vh - 5cm);
             border-radius: 10px;
             padding: 20px;
-            
+            background-color: #4bcdA2;
         }
 
         .notification {
@@ -80,7 +72,6 @@ $conn->close();
             margin-bottom: 10px;
             display: flex;
             align-items: center;
-            
         }
 
         .notification img {
@@ -104,62 +95,6 @@ $conn->close();
             color: #888;
             font-style: italic;
             text-align: center;
-        }<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .notification-container {
-            width: 8cm;
-            margin-top: 11cm;
-            margin-left: 5cm;
-            overflow-y: auto;
-            max-height: calc(100vh - 5cm);
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .notification {
-            border: 1px solid orange;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .notification img {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .notification a {
-            color: #333;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .notification a:hover {
-            color: orange;
-        }
-
-        .no-notification {
-            color: #888;
-            font-style: italic;
-            text-align: center;
         }
     </style>
 </head>
@@ -174,7 +109,7 @@ $conn->close();
                     echo '<a href="pro.php?email=' . urlencode($row['user_1']) . '"><img src="image/' . $row['user_image'] . '" alt="User Image"></a>';
                 }
                 if (strpos($row['notification'], 'ajouter une favorie sur votre produit') === false) {
-                    echo '<a href="commenter.php?id_notification=' . $row['id'] . '">' . $row['notification'] . '</a>';
+                    echo '<a href="commenter.php?produit_id=' . $row['product_id'] . '">' . $row['notification'] . '</a>';
                 } else {
                     echo $row['notification'];
                 }

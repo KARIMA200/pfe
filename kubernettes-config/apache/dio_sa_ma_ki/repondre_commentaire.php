@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 if (isset($_POST['comment_id']) && isset($_POST['response'])) {
     $comment_id = $_POST['comment_id'];
     $response = $_POST['response'];
-
+    $produit_id = $_POST['produit_id'];
     // Échapper les caractères spéciaux pour éviter les injections SQL
     $comment_id = $conn->real_escape_string($comment_id);
     $response = $conn->real_escape_string($response);
@@ -51,7 +51,7 @@ if (isset($_POST['comment_id']) && isset($_POST['response'])) {
                 $notification = "$user_nom $user_prenom a répondu sur votre commentaire";
                 $sql_notification = "INSERT INTO notifications (user_1, user_2, notification, comment_id) VALUES ('$email', '$comment_owner_email', '$notification', '$comment_id')";
                 if ($conn->query($sql_notification) === TRUE) {
-                    echo "Réponse ajoutée avec succès et le nombre de réponses mis à jour. Notification ajoutée.";
+                    header("Location: commenter.php?produit_id=".$produit_id);
                 } else {
                     echo "Erreur lors de l'insertion de la notification: " . $conn->error;
                 }
