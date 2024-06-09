@@ -680,6 +680,8 @@ if ($vendeur) {
         <ul class="sub-menu creative-sub-menu" id="liste-cachée">
             <li><a href="#" id="voir-profil">Voir profil</a></li>
             <li><a href="voir_favorie.php">Favorie</a></li>
+            <li><a href="add_livreur.php">ajouter livreur</a></li>
+
             <li><a href="#">Se déconnecter</a></li>
         </ul>
       
@@ -711,15 +713,14 @@ if ($vendeur) {
     </ul>
 </div>
         </div>  
+
+
         <form action="" method="POST" class="search-container creative-search">
     <input type="text" placeholder="Search..." name="search" class="search-input">
     <button type="submit" class="search-button">Search</button>
 </form>
 
-<!-- Icone pour ajouter un produit -->
-<div class="icon" id="add-icon" onclick="redirectToAddProduct()">
-    <i class="fa-solid fa-plus"></i>
-</div>
+
 
 <!-- Icône de notification de commentaire -->
 <div class="icon right-container notification" id="comment" onclick="loadChatPage()">
@@ -744,7 +745,18 @@ if ($vendeur) {
         <?php endif; ?>
     </div>
 </a>
+<div class="icon right_notification">
+    <a href="voir_commandes.php" style="color: orange;">
+        <i class="fas fa-shopping-cart"></i>
+    </a>
+</div>
+<!-- Icone pour ajouter un produit -->
+<a href="add_produit.html">
+    <i class="fa-solid fa-plus"></i>
+</a>
     <a href="voir_produits.php" id="karima" class="creative-link move-left">Voir les produits</a>
+
+
 
 
    
@@ -770,6 +782,11 @@ if ($vendeur) {
                 ?>
                 <div class="product">
                     <?php
+
+                        // Vérification du stock
+                        $stock = $row['stock'];
+                        $stock_status = $stock > 0 ? "En stock" : "Rupture de stock";
+                    
                     // Chemin de l'image du produit
                     $image_path = "image/" . $row['image']; 
                     // Vérifier si le fichier image existe
@@ -787,15 +804,17 @@ if ($vendeur) {
                     }
                     $nom_vendeur = $row['nom_vendeur'];
                     $prenom_vendeur = $row['prenom_vendeur'];
+                    
             
 ?>
                     
                  
-                    
+                     
 
                     <span class="product-info">
     <h3><?php echo $row['nom']; ?></h3>
     <p ><?php echo $row['description']; ?></p>
+    <p ><?php echo $stock_status; ?></p>
     <p class="price">Prix: <?php echo $row['prix']; ?>€</p>
 
 

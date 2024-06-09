@@ -50,6 +50,20 @@ $stmt->close();
             padding: 0;
             background: #f4f4f4;
         }
+        .creative-search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 5px 10px;
+    max-width: 200px;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+}
+
+/* Input field for the search form */
 
         .chat-container {
             max-width: 500px;
@@ -150,11 +164,49 @@ $stmt->close();
             color: #fff;
             padding: 8px 15px;
             border-radius: 5px;
+        } .search-container {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            width: 300px;
+            margin-left: 2cm;  /* Ajustez la largeur selon vos besoins */
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
+<form action="chercher.php" method="POST" class="search-container creative-search">
+    <input type="text" placeholder="Search..." name="search" class="search-input">
+    <button type="submit" class="search-button">Search</button>
+</form>
+      
+    </div>
     <div class="chat-container">
+  
         <div class="chat-header">
             <div class="user-avatar">
                 <?php
@@ -376,6 +428,22 @@ $conn->close();}
             }
         });
     </script>
+    <script>
+    // JavaScript pour afficher la liste des résultats de recherche
+    document.querySelector('.search-button').addEventListener('click', function() {
+        // Affiche la liste des résultats de recherche
+        document.querySelector('.search-results').style.display = 'block';
+    });    document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêche la soumission du formulaire
+
+            // Affiche la liste des résultats de recherche
+            document.querySelector('.search-results').style.display = 'block';
+
+            // Soumet le formulaire
+            this.submit();
+        });
+</script>
+
 </body>
 </html>
 
