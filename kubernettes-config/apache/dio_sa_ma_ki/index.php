@@ -210,7 +210,7 @@
         </div>
 
         <div id="signupContainer" class="form-container hidden">
-            <h2>Inscription</h2>
+           
             <form action="inscription.php" method="post" enctype="multipart/form-data">
                 <div class="input-row">
                     <input type="text" id="firstName" name="prenom" placeholder="Prénom" required>
@@ -239,16 +239,11 @@
                     <input type="radio" id="vendeur" name="type_utilisateur" value="vendeur">
                     <label for="vendeur">Vendeur</label>
                 </div>
-            </php> <div class="g-recaptcha" data-sitekey="6Lcmr_YpAAAAAKsXtTxp64OXDw-cL07M8x8lgziy"></div><br><br>
+            </php> <div class="g-recaptcha" data-sitekey="6Lcmr_YpAAAAAKsXtTxp64OXDw-cL07M8x8lgziy"></div>
                 <button type="submit">S'inscrire</button>
             </form>
             <p class="link"><a href="javascript:void(0);" onclick="showLogin()">Se connecter</a></p>
-            <div class="footer">
-                <a href="https://web.facebook.com/chakiri.karima.5/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
-                <a href="https://www.instagram.com/la_diabla_muerta/" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                <a href="mailto:karima.chougri@gmail.com"><i class="fas fa-envelope"></i></a>
-            </div>
+           
         </div>
     </div>
 

@@ -79,23 +79,45 @@ if ($result->num_rows > 0) {
 
         $stmt_count_unread->close();
 
-        // Requête pour récupérer les informations de l'autre utilisateur
-        $user_info_sql = "SELECT * FROM clients WHERE email = ? 
-                          UNION
-                          SELECT * FROM vendeurs WHERE email = ?";
-        $stmt_user_info = $conn->prepare($user_info_sql);
+        // Requête pour récupérer les informations de l'autre utilisateur depuis la table clients
+        $user_info_sql_clients = "SELECT * FROM clients WHERE email = ?";
+        $stmt_user_info_clients = $conn->prepare($user_info_sql_clients);
         
-        if (!$stmt_user_info) {
+        if (!$stmt_user_info_clients) {
             http_response_code(500);
-            exit("Erreur de préparation de la requête pour récupérer les informations de l'utilisateur: " . $conn->error);
+            exit("Erreur de préparation de la requête pour récupérer les informations de l'utilisateur (clients): " . $conn->error);
         }
 
-        $stmt_user_info->bind_param("ss", $other_user, $other_user);
-        $stmt_user_info->execute();
-        $user_info_result = $stmt_user_info->get_result();
+        $stmt_user_info_clients->bind_param("s", $other_user);
+        $stmt_user_info_clients->execute();
+        $user_info_result_clients = $stmt_user_info_clients->get_result();
 
-        if ($user_info_result->num_rows > 0) {
-            $user_info = $user_info_result->fetch_assoc();
+        if ($user_info_result_clients->num_rows > 0) {
+            $user_info = $user_info_result_clients->fetch_assoc();
+        } else {
+            // Si aucun résultat n'est trouvé dans la table clients, rechercher dans la table vendeurs
+            $user_info_sql_vendeurs = "SELECT * FROM vendeurs WHERE email = ?";
+            $stmt_user_info_vendeurs = $conn->prepare($user_info_sql_vendeurs);
+            
+            if (!$stmt_user_info_vendeurs) {
+                http_response_code(500);
+                exit("Erreur de préparation de la requête pour récupérer les informations de l'utilisateur (vendeurs): " . $conn->error);
+            }
+
+            $stmt_user_info_vendeurs->bind_param("s", $other_user);
+            $stmt_user_info_vendeurs->execute();
+            $user_info_result_vendeurs = $stmt_user_info_vendeurs->get_result();
+
+            if ($user_info_result_vendeurs->num_rows > 0) {
+                $user_info = $user_info_result_vendeurs->fetch_assoc();
+            }
+            
+            $stmt_user_info_vendeurs->close();
+        }
+
+        $stmt_user_info_clients->close();
+
+        if ($user_info) {
             $conversations[] = [
                 'nom' => $user_info['nom'],
                 'email' => $user_info['email'],
@@ -109,12 +131,12 @@ if ($result->num_rows > 0) {
             // Debugging: Afficher les détails des conversations
             echo "<script>console.log('Conversation with " . $user_info['email'] . ": " . json_encode($conversations) . "');</script>";
         }
-        $stmt_user_info->close();
     }
 } 
 $stmt->close();
 $conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>

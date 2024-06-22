@@ -1,9 +1,15 @@
 <?php
 session_start();
 
-// Vérification de la session et récupération de l'email de l'utilisateur connecté
-if(isset($_SESSION['email'])) {
+$email = null; // Initialisation de la variable email
+
+// Vérifier d'abord si l'email est présent dans GET
+if (isset($_GET['email'])) {
+    $email = $_GET['email'];
+} elseif (isset($_SESSION['email'])) { // Si l'email n'est pas dans GET, vérifiez s'il est présent dans la session
     $email = $_SESSION['email'];
+}
+
 
     // Connexion à la base de données
     $servername = "localhost";
@@ -193,9 +199,8 @@ if(isset($_SESSION['email'])) {
     }
 
     $conn->close();
-} else {
-    echo "Veuillez vous connecter pour accéder à cette page.";
-}
+
+
 ?>
 </body>
 </html>

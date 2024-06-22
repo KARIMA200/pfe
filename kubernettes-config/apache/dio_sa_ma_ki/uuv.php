@@ -680,9 +680,18 @@ if ($vendeur) {
         <ul class="sub-menu creative-sub-menu" id="liste-cachée">
             <li><a href="#" id="voir-profil">Voir profil</a></li>
             <li><a href="voir_favorie.php">Favorie</a></li>
-            <li><a href="add_livreur.php">ajouter livreur</a></li>
+          
+    <form  action="traitement_ajout_livreur.php" method="POST">
+    
+            <input type="email" id="email" name="email" placeholder="email du livreur">
+            <button type="submit">Ajouter</button>
 
-            <li><a href="#">Se déconnecter</a></li>
+    </form>
+
+
+
+
+            <li><a href="deconnexion.php" id="se-deconnecter">Se déconnecter</a></li>
         </ul>
       
             </div>
@@ -1054,6 +1063,9 @@ document.addEventListener('DOMContentLoaded', function() {
         heartIcon.classList.toggle('filled-heart');
     });
 });
+
+
+
 
 
 

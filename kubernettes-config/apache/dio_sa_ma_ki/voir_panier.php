@@ -20,6 +20,7 @@ if (isset($_SESSION['email'])) {
     // Récupérer l'email de l'utilisateur
     $email = $_SESSION['email'];
     $total = 0;
+    
     // Requête pour obtenir l'ID du client à partir de son email
     $sql_client_id = "SELECT * FROM clients WHERE email = ?";
     $stmt_client_id = $conn->prepare($sql_client_id);
@@ -33,6 +34,22 @@ if (isset($_SESSION['email'])) {
         $user_id = $row["id"];
         $user_nom = $row["nom"];
         $user_prenom = $row["prenom"];
+        
+        // Requête pour vérifier si le champ livreur_vendeur_email contient une valeur pour cet utilisateur
+        $sql_check_livreur = "SELECT livreur_vendeur_email FROM clients WHERE email = ?";
+        $stmt_check_livreur = $conn->prepare($sql_check_livreur);
+        $stmt_check_livreur->bind_param("s", $email);
+        $stmt_check_livreur->execute();
+        $result_check_livreur = $stmt_check_livreur->get_result();
+        
+        if ($result_check_livreur->num_rows > 0) {
+            // Le champ livreur_vendeur_email contient une valeur pour cet utilisateur
+            $row_livreur = $result_check_livreur->fetch_assoc();
+            $livreur_email = $row_livreur['livreur_vendeur_email'];
+            
+            // Afficher le lien "Voir Commande"
+        }
+        
         // Requête pour obtenir les produits du panier pour ce client
         $sql_panier_produits = "SELECT pa.product_id as product_id, pa.id as panier_id, p.stock, p.nom, p.prix, p.image, pv.vendeur_id FROM panier pa JOIN produits p ON pa.product_id = p.id LEFT JOIN produits_vendeurs pv ON p.id = pv.produit_id WHERE pa.user_id = ?";
         $stmt_panier_produits = $conn->prepare($sql_panier_produits);
@@ -40,8 +57,6 @@ if (isset($_SESSION['email'])) {
         $stmt_panier_produits->execute();
         $result_panier_produits = $stmt_panier_produits->get_result();
 
-      
-          
         if ($result_panier_produits->num_rows > 0) {
             $total = 0;
             // votre code pour afficher les produits
@@ -54,9 +69,8 @@ if (isset($_SESSION['email'])) {
 } else {
     $message = "Aucun email d'utilisateur trouvé en session.";
 }
-          
-          
-          ?>
+?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -241,6 +255,14 @@ width: 100%;
     </div>
 </div>
 
+    <!-- Insérez votre code PHP ici -->
+    <?php
+        // Insérez votre code PHP ici
+       
+            
+            // Afficher le lien "Voir Commande" avec le paramètre email
+            echo "<a href='voir_commandes.php?email=$livreur_email'>Voir Commande</a>";
+         ?>
 
 </body>
 </html>

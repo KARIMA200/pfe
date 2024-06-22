@@ -34,15 +34,11 @@ if (isset($_POST['product_id'])) {
 
     if ($result_check_favorite->num_rows == 0) {
         // Le produit n'est pas déjà en favori pour cet utilisateur, procéder à l'insertion
-        // Préparer la requête d'insertion dans la table des favoris
         $stmt_insert_favorite = $conn->prepare("INSERT INTO favoris (product_id, user_email) VALUES (?, ?)");
         $stmt_insert_favorite->bind_param("is", $product_id, $email_utilisateur);
 
         // Exécuter la requête d'insertion
         if ($stmt_insert_favorite->execute()) {
-          
-            
-
             // Rechercher le vendeur du produit
             $stmt_vendeur = $conn->prepare("SELECT vendeur_id FROM produits_vendeurs WHERE produit_id = ?");
             $stmt_vendeur->bind_param("i", $product_id);
@@ -65,14 +61,13 @@ if (isset($_POST['product_id'])) {
             $stmt_info_utilisateur->execute();
             $result_info_utilisateur = $stmt_info_utilisateur->get_result();
             $row_info_utilisateur = $result_info_utilisateur->fetch_assoc();
-            if ($row_info_utilisateur){
-            $nom_utilisateur = $row_info_utilisateur['nom'];
-            $prenom_utilisateur = $row_info_utilisateur['prenom'];
 
-            // Vérifier si l'utilisateur est un client
-            }else{ 
-                
-                // Utilisateur non trouvé dans la table clients, donc il doit être un vendeur
+            // Vérifier si l'utilisateur est un client ou un vendeur
+            if ($row_info_utilisateur) {
+                $nom_utilisateur = $row_info_utilisateur['nom'];
+                $prenom_utilisateur = $row_info_utilisateur['prenom'];
+                $is_client = true;
+            } else {
                 $stmt_info_utilisateur = $conn->prepare("SELECT nom, prenom FROM vendeurs WHERE email = ?");
                 $stmt_info_utilisateur->bind_param("s", $email_utilisateur);
                 $stmt_info_utilisateur->execute();
@@ -80,6 +75,7 @@ if (isset($_POST['product_id'])) {
                 $row_info_utilisateur = $result_info_utilisateur->fetch_assoc();
                 $nom_utilisateur = $row_info_utilisateur['nom'];
                 $prenom_utilisateur = $row_info_utilisateur['prenom'];
+                $is_client = false;
             }
 
             // Insérer une notification pour le vendeur
@@ -95,19 +91,14 @@ if (isset($_POST['product_id'])) {
             $result_count_favorites = $stmt_count_favorites->get_result();
             $row_count_favorites = $result_count_favorites->fetch_assoc();
             $_SESSION['favoris_count'][$product_id] = $row_count_favorites['favoris_count'];
-       
-            $page = '';
-            if ($row_info_utilisateur) {
-                // L'utilisateur est un client
-                $page = 'uu.php';
+
+            // Rediriger l'utilisateur vers la page appropriée
+            if ($is_client) {
+                header("Location: uu.php");
             } else {
-                // L'utilisateur est un vendeur
-                $page = 'uuv.php';
+                header("Location: uuv.php");
             }
-            header("Location: $page");
             exit();
-       
-       
         } else {
             echo "Erreur lors de l'ajout du produit aux favoris: " . $conn->error;
         }
@@ -120,17 +111,20 @@ if (isset($_POST['product_id'])) {
         $stmt_insert_notification->close();
         $stmt_count_favorites->close();
     } else {
-      
-        $page = '';
-            if ($row_info_utilisateur) {
-                // L'utilisateur est un client
-                $page = 'uu.php';
-            } else {
-                // L'utilisateur est un vendeur
-                $page = 'uuv.php';
-            }
-            header("Location: $page");
-            exit();
+        // Le produit est déjà en favori
+        $stmt_info_utilisateur = $conn->prepare("SELECT email FROM clients WHERE email = ?");
+        $stmt_info_utilisateur->bind_param("s", $email_utilisateur);
+        $stmt_info_utilisateur->execute();
+        $result_info_utilisateur = $stmt_info_utilisateur->get_result();
+        $row_info_utilisateur = $result_info_utilisateur->fetch_assoc();
+
+        // Rediriger l'utilisateur vers la page appropriée
+        if ($row_info_utilisateur) {
+            header("Location: uu.php");
+        } else {
+            header("Location: uuv.php");
+        }
+        exit();
     }
 
     // Fermer la connexion

@@ -202,50 +202,58 @@ if(isset($_POST['produit_id'])) {
             echo "<div class='comment'>";
             // Afficher l'image de l'utilisateur
             echo "<a href='pro.php?email={$row['email']}'><img class='petite-image' src='image/{$row['image']}' alt='{$row['nom']}'></a>";
-
             // Afficher le nom et prénom de l'utilisateur dans le même conteneur
             echo "<div class='user-name'>{$row['prenom']} {$row['nom']}</div>";
+            // Vérifier si le commentaire contient un chemin d'image
             if (strpos($row['commentaire'], 'image/') === 0) {
-                // Si oui, afficher l'image
-                $image_path = substr($row['commentaire'], 6); // Supprimer "image/" du chemin
+                     // Extraire le chemin de l'image du commentaire
+                     $image_file = substr($row['commentaire'], strlen('image/'));
+                     $image_path = $image_file;
+                // Extraire le chemin de l'image du commentaire
+             
+                // Afficher l'image
                 echo "<div class='image-container'>";
                 echo "<img class='thumbnail' src='$image_path' alt='Image' onclick='displayFullImage(\"$image_path\")'>";
                 echo "</div>";
             } else {
-                // Si non, afficher le contenu du commentaire
+                // Afficher le contenu du commentaire
                 echo "<div class='content'>{$row['commentaire']}</div>";
             }
-            // Afficher les icônes pour les actions (inspirées de Facebook)    echo '<a href="jaime_com.php?id=' . $row['id'] . '" class="loadJaime">J\'aime</a>';
+    
+            // Afficher les icônes pour les actions (inspirées de Facebook)
             echo '<div class="actions">';
             echo '<a href="jaime_com.php?id=' . $row['id'] . '" class="loadJaime">' . '<span class="clickCount">' . $row['nombre_clics'] . '</span>' . '</a>';
             echo '<form action="update_clicks.php" method="GET" class="heart-form">';
             echo '  <input type="hidden" name="comment_id" value="' . $row['id'] . '">';
-            echo'<input type="hidden" name="produit_id" value="' . $produit_id . '">';
+            echo '<input type="hidden" name="produit_id" value="' . $produit_id . '">';
             echo '  <button type="submit" class="heart-button">';
             echo '      <i class="fas fa-heart"></i>';
             echo '  </button>';
             echo '</form>';
-
+    
             echo '<span class="clickCount">' . $row['nombre_reponses'] . '</span>';
             echo '<button type="button" class="comment-button" onclick="toggleResponses(' . $row['id'] . ')">';
             echo '      <i class="fa-solid fa-comment"></i>';
-            echo '</button> </div>';
+            echo '</button>';
+            echo '</div>';
+    
             echo '<div id="responses-' . $row['id'] . '" style="display: none;">';
-        
+    
+            // Récupérer et afficher les réponses aux commentaires
             $responses_sql = "SELECT reponses_commentaires.*, IFNULL(vendeurs.user_image, clients.user_image) AS user_image, IFNULL(vendeurs.nom, clients.nom) AS nom, IFNULL(vendeurs.prenom, clients.prenom) AS prenom FROM reponses_commentaires LEFT JOIN vendeurs ON reponses_commentaires.email = vendeurs.email LEFT JOIN clients ON reponses_commentaires.email = clients.email WHERE commentaire_id = {$row['id']}";
             $responses_result = $conn->query($responses_sql);
             if ($responses_result->num_rows > 0) {
                 while ($response_row = $responses_result->fetch_assoc()) {
                     echo "<div class='response'>";
                     echo "<a href='page_php.php?email={$response_row['email']}'><img src='image/{$response_row['user_image']}' alt='{$response_row['prenom']} {$response_row['nom']}'></a>";
-
+    
                     echo "<div class='response-content'>{$response_row['reponse']}</div>";
                     echo "<div class='response-user'>Répondu par: {$response_row['prenom']} {$response_row['nom']}</div>";
                     echo "</div>";
                 }
             }
             echo '</div>';
-
+    
             // Afficher le formulaire de réponse
             echo '<form class="reply-form" action="repondre_commentaire.php" method="POST">';
             echo '<textarea name="response" placeholder="Répondre au commentaire"></textarea>';
@@ -253,7 +261,7 @@ if(isset($_POST['produit_id'])) {
             echo '<input type="hidden" name="produit_id" value="' . $produit_id . '">';
             echo '<button type="submit" class="submit-button">Envoyer</button>';
             echo '</form>';
-
+    
             // Afficher l'icône de corbeille si l'utilisateur connecté est l'auteur du commentaire
             if ($row['email'] == $utilisateur_email) {
                 echo '<form action="supprimer_commentaire.php" method="POST" class="delete-form">';
@@ -264,13 +272,15 @@ if(isset($_POST['produit_id'])) {
                 echo '</button>';
                 echo '</form>';
             }
-
+    
             echo '</div>'; // Fermeture du div .comment
         }
     } else {
         echo "Aucun commentaire pour ce produit.";
     }
     ?>
+    
+    
     <!-- Formulaire pour ajouter un nouveau commentaire -->
     <form action="ajouter_commentaire.php" method="POST" enctype="multipart/form-data">
     <input type="hidden" name="produit_id" value="<?php echo $produit_id; ?>">

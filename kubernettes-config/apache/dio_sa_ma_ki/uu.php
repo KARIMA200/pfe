@@ -680,7 +680,7 @@ if ($vendeur) {
         <ul class="sub-menu creative-sub-menu" id="liste-cachée">
             <li><a href="#" id="voir-profil">Voir profil</a></li>
             <li><a href="voir_favorie.php">Favorie</a></li>
-            <li><a href="#">Se déconnecter</a></li>
+            <li><a href="deconnexion.php">Se déconnecter</a></li>
         </ul>
       
             </div>

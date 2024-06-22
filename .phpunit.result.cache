@@ -1,1 +1,0 @@
-{"version":1,"defects":{"ProductTest::testInsertProductSuccess":4,"ProductTest::testInsertProductFailure":4},"times":{"ProductTest::testInsertProductSuccess":0.007,"ProductTest::testInsertProductFailure":0.001}}
